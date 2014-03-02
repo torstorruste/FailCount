@@ -30,10 +30,51 @@ frame:SetScript("OnEvent", FailCount_OnEvent);
 function SlashCmdList.FAILCOUNT(msg, editbox)
 	if msg and fails[msg] then
 		printFails(msg);
+	elseif msg == "total" then
+		printTotals();
 	else
 		print("FailCount encounters");
 		for k, v in pairs(fails) do print(k); end
 	end
+end;
+
+function printTotals()
+	local players = {};
+	for timestamp, encounter in pairs(fails) do
+		for player, failTable in pairs(encounter) do
+			if players[player] == nil then
+				players[player] = {};
+			end
+		end
+	end
+	
+	for player,_ in pairs(players) do
+		for timestamp, encounter in pairs(fails) do
+			for p, failTable in pairs(encounter) do
+				if(p==player) then
+					for spell, amount in pairs(failTable) do
+						if players[player][spell] == nil then
+							players[player][spell] = amount
+						else
+							players[player][spell] = players[player][spell] + amount;
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	for player, failTable in pairs(players) do
+		local failString = "";
+		local separator = "";
+		for spell, amount in pairs(failTable) do
+			failString = failString .. separator .. spell .. ": " .. amount;
+			separator = ", ";
+		end
+		
+		printMessage(player .. " " .. failString);
+	end
+	
 end;
 
 function printFails(encounter)
