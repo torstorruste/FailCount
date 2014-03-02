@@ -1,0 +1,5 @@
+## Interface:  50400
+## Title: FailCount
+## Notes: Tracks fails
+FailCount.lua
+FailCount.xml
