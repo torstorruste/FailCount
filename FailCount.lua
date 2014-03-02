@@ -11,7 +11,7 @@ fails = {};
 currentEncounter = nil;
 
 function printMessage(msg)
-	print(msg);
+	SendChatMessage(msg, "SAY");
 end
 
 function FailCount_OnEvent(self, event, ...)
@@ -28,10 +28,10 @@ end;
 frame:SetScript("OnEvent", FailCount_OnEvent);
 
 function SlashCmdList.FAILCOUNT(msg, editbox)
-	printMessage("FailCount");
 	if msg and fails[msg] then
 		printFails(msg);
 	else
+		print("FailCount encounters");
 		for k, v in pairs(fails) do print(k); end
 	end
 end;
