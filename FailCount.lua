@@ -69,8 +69,19 @@ function FailCount_EndCombat(event, ...)
 	print("Ending combat at " .. date("%H:%M:%S"));
 	local enc = currentEncounter;
 	currentEncounter = nil;
-	printFails(enc);
+	if table.empty(fails[enc]) then
+		fails[enc] = nil;
+	else
+		printFails(enc);
+	end;
 end;
+
+function table.empty(t)
+	for _,_ in pairs(t) do
+		return false;
+	end
+	return true;
+end
 
 function FailCount_CombatEvent(Event, ...)
 	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags = ...;
