@@ -10,6 +10,10 @@ spells = {}
 fails = {};
 currentEncounter = nil;
 
+function printMessage(msg)
+	print(msg);
+end
+
 function FailCount_OnEvent(self, event, ...)
 	if event == "PLAYER_REGEN_DISABLED" then
 		FailCount_StartCombat(event, ...);
@@ -33,7 +37,7 @@ function SlashCmdList.FAILCOUNT(msg, editbox)
 				separator = ", ";
 			end
 			
-			print(player, failString); 
+			printMessage(player .. " " .. failString); 
 		end
 	else
 		for k, v in pairs(fails) do print(k); end
@@ -41,16 +45,7 @@ function SlashCmdList.FAILCOUNT(msg, editbox)
 end;
 
 function printFails(encounter)
-	for k, v in pairs(fails[encounter]) do print(k,v); end
-end;
-
-function FailCount_AddFail(player, ability)
-	if fails[msg] ~= nil then
-		fails[msg] = fails[msg] + 1;
-	else
-		fails[msg] = 1;
-	end
-	print(fails[msg]);
+	for k, v in pairs(fails[encounter]) do printMessage(k .. " " .. v); end
 end;
 
 function FailCount_SetUp()
