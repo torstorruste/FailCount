@@ -10,13 +10,26 @@ fails = {};
 currentEncounter = nil;
 
 function FailCount_OnEvent(self, event, ...)
-	print("FailCount: " .. event);
+	if event == "PLAYER_REGEN_DISABLED" then
+		FailCount_StartCombat(event, ...);
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		FailCount_EndCombat(event, ...);
+	elseif currentEncounter ~= nil then
+		FailCount_CombatEvent(Event, ...);
+	end
 end;
 frame:SetScript("OnEvent", FailCount_OnEvent);
 
 function SlashCmdList.FAILCOUNT(msg, editbox)
-	print("Fails " .. msg);
-	for k, v in pairs(fails) do print(k,v); end
+	if msg and fails[msg] then
+		for k, v in pairs(fails[msg]) do print(k, v); end
+	else
+		for k, v in pairs(fails) do print(k); end
+	end
+end;
+
+function printFails(encounter)
+	for k, v in pairs(fails[encounter]) do print(k,v); end
 end;
 
 function FailCount_AddFail(player, ability)
@@ -26,4 +39,29 @@ function FailCount_AddFail(player, ability)
 		fails[msg] = 1;
 	end
 	print(fails[msg]);
+end;
+
+function FailCount_StartCombat(event, ...)
+	print("Starting combat at " .. date("%H:%M:%S"));
+	currentEncounter = date("%H:%M:%S");
+	fails[currentEncounter] = {};
+end;
+
+function FailCount_EndCombat(event, ...)
+	print("Ending combat at " .. date("%H:%M:%S"));
+	local enc = currentEncounter;
+	currentEncounter = nil;
+	printFails(enc);
+end;
+
+function FailCount_CombatEvent(Event, ...)
+	print("CombatLogEvent");
+	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags = ...;
+	if currentEncounter ~= nil then
+		if fails[currentEncounter][sourceName] ~= nil then
+			fails[currentEncounter][sourceName] = fails[currentEncounter][sourceName]+1;
+		else
+			fails[currentEncounter][sourceName] = 1;
+		end
+	end
 end;
