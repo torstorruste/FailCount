@@ -25,7 +25,16 @@ frame:SetScript("OnEvent", FailCount_OnEvent);
 
 function SlashCmdList.FAILCOUNT(msg, editbox)
 	if msg and fails[msg] then
-		for k, v in pairs(fails[msg]) do print(k, v); end
+		for player, failTable in pairs(fails[msg]) do 
+			local failString = "";
+			local separator = "";
+			for spell, amount in pairs(failTable) do
+				failString = failString .. separator .. spell .. ": " .. amount;
+				separator = ", ";
+			end
+			
+			print(player, failString); 
+		end
 	else
 		for k, v in pairs(fails) do print(k); end
 	end
@@ -45,7 +54,9 @@ function FailCount_AddFail(player, ability)
 end;
 
 function FailCount_SetUp()
-	spells[100780] = "Jab";
+	spells[143701] = "SPELL_AURA_APPLIED"; -- Whirling
+	spells[143240] = "SPELL_PERIODIC_DAMAGE"; -- Rapid Fire
+	spells[143735] = "SPELL_AURA_APPLIED"; -- Caustic Amber
 end;
 
 function FailCount_StartCombat(event, ...)
@@ -66,16 +77,25 @@ function FailCount_CombatEvent(Event, ...)
 	local eventPrefix, eventSuffix = combatEvent:match("^(.-)_?([^_]*)$");
 	
 	if currentEncounter ~= nil and eventPrefix:match("^SPELL") then
-		local spellId, spellName, spellSchool = select(12, ...);
-		
-		print(spellId .. ": " .. spellName);
-	
-		if spells[spellId] then
-			if fails[currentEncounter][sourceName] ~= nil then
-				fails[currentEncounter][sourceName] = fails[currentEncounter][sourceName]+1;
+		local spellId, spellName, spellSchool = select(12, ...);	
+		if FailCount_IsFail(event, combatEvent, spellId) then
+			print(destName .. ": " .. spellName);
+			if fails[currentEncounter][destName] == nil then
+				fails[currentEncounter][destName] = {};
+			end;
+			
+			if fails[currentEncounter][destName][spellName] ~= nil then
+				fails[currentEncounter][destName][spellName] = fails[currentEncounter][destName][spellName]+1;
 			else
-				fails[currentEncounter][sourceName] = 1;
+				fails[currentEncounter][destName][spellName] = 1;
 			end
 		end
 	end
 end;
+
+function FailCount_IsFail(event, combatEvent, spellId)
+	if spells[spellId] == combatEvent then
+		return true;
+	end
+	return false;
+end
