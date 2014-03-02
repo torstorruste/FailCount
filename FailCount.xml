@@ -5,7 +5,7 @@
 	<Script File="FailCount.lua"/>
 	<Frame name="FailCountFrame">
 		<Scripts>
-			<OnLoad>setUp();</OnLoad>
+			<OnLoad>FailCount_OnLoad();</OnLoad>
 		</Scripts>
 	</Frame>
 </Ui>
