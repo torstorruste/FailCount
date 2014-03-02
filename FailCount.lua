@@ -55,6 +55,7 @@ function FailCount_SetUp()
 	spells[143701] = "SPELL_AURA_APPLIED"; -- Whirling
 	spells[143240] = "SPELL_PERIODIC_DAMAGE"; -- Rapid Fire
 	spells[143735] = "SPELL_AURA_APPLIED"; -- Caustic Amber
+	spells[143980] = "SPELL_DAMAGE"; -- Vicious Assault
 end;
 
 function FailCount_StartCombat(event, ...)
