@@ -28,8 +28,17 @@ end;
 frame:SetScript("OnEvent", FailCount_OnEvent);
 
 function SlashCmdList.FAILCOUNT(msg, editbox)
+	printMessage("FailCount");
 	if msg and fails[msg] then
-		for player, failTable in pairs(fails[msg]) do 
+		printFails(msg);
+	else
+		for k, v in pairs(fails) do printMessage(k); end
+	end
+end;
+
+function printFails(encounter)
+	if encounter and fails[encounter] then
+		for player, failTable in pairs(fails[encounter]) do 
 			local failString = "";
 			local separator = "";
 			for spell, amount in pairs(failTable) do
@@ -39,13 +48,7 @@ function SlashCmdList.FAILCOUNT(msg, editbox)
 			
 			printMessage(player .. " " .. failString); 
 		end
-	else
-		for k, v in pairs(fails) do print(k); end
 	end
-end;
-
-function printFails(encounter)
-	for k, v in pairs(fails[encounter]) do printMessage(k .. " " .. v); end
 end;
 
 function FailCount_SetUp()
@@ -79,7 +82,7 @@ function table.empty(t)
 end
 
 function FailCount_CombatEvent(Event, ...)
-	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags = ...;
+	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags = ...;
 	local eventPrefix, eventSuffix = combatEvent:match("^(.-)_?([^_]*)$");
 	
 	if currentEncounter ~= nil and eventPrefix:match("^SPELL") then
