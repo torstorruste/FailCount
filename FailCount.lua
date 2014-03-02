@@ -6,6 +6,7 @@ frame:RegisterEvent("PLAYER_REGEN_ENABLED");
 
 SLASH_FAILCOUNT1 = '/fc';
 
+spells = {}
 fails = {};
 currentEncounter = nil;
 
@@ -16,6 +17,8 @@ function FailCount_OnEvent(self, event, ...)
 		FailCount_EndCombat(event, ...);
 	elseif currentEncounter ~= nil then
 		FailCount_CombatEvent(Event, ...);
+	else
+		FailCount_SetUp();
 	end
 end;
 frame:SetScript("OnEvent", FailCount_OnEvent);
@@ -41,6 +44,10 @@ function FailCount_AddFail(player, ability)
 	print(fails[msg]);
 end;
 
+function FailCount_SetUp()
+	spells[100780] = "Jab";
+end;
+
 function FailCount_StartCombat(event, ...)
 	print("Starting combat at " .. date("%H:%M:%S"));
 	currentEncounter = date("%H:%M:%S");
@@ -55,13 +62,20 @@ function FailCount_EndCombat(event, ...)
 end;
 
 function FailCount_CombatEvent(Event, ...)
-	print("CombatLogEvent");
 	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags = ...;
-	if currentEncounter ~= nil then
-		if fails[currentEncounter][sourceName] ~= nil then
-			fails[currentEncounter][sourceName] = fails[currentEncounter][sourceName]+1;
-		else
-			fails[currentEncounter][sourceName] = 1;
+	local eventPrefix, eventSuffix = combatEvent:match("^(.-)_?([^_]*)$");
+	
+	if currentEncounter ~= nil and eventPrefix:match("^SPELL") then
+		local spellId, spellName, spellSchool = select(12, ...);
+		
+		print(spellId .. ": " .. spellName);
+	
+		if spells[spellId] then
+			if fails[currentEncounter][sourceName] ~= nil then
+				fails[currentEncounter][sourceName] = fails[currentEncounter][sourceName]+1;
+			else
+				fails[currentEncounter][sourceName] = 1;
+			end
 		end
 	end
 end;
