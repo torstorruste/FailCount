@@ -32,7 +32,7 @@ function SlashCmdList.FAILCOUNT(msg, editbox)
 	if msg and fails[msg] then
 		printFails(msg);
 	else
-		for k, v in pairs(fails) do printMessage(k); end
+		for k, v in pairs(fails) do print(k); end
 	end
 end;
 
