@@ -97,7 +97,22 @@ end;
 
 function FailCount_SetUp()
 	-- Immersius
+	spells[143413] = "SPELL_PERIODIC_DAMAGE"; -- Swirl
+	spells[143436] = "SPELL_DAMAGE"; -- Corrosive Blast
 	
+	-- Protectors
+	spells[143023] = "SPELL_DAMAGE"; -- Corrupted Brew
+	spells[144397] = "SPELL_DAMAGE"; -- Vengeful Strikes
+	spells[143009] = "SPELL_AURA_APPLIED"; -- Corruption Kick
+	
+	-- Norushen
+	spells[145227] = "SPELL_DAMAGE"; -- Blind Hatred
+	announce[145052] = "SPELL_ENERGIZE"; -- Corrupt
+	
+	-- Sha
+	spells[144911] = "SPELL_DAMAGE"; -- Bursting Pride
+	spells[147198] = "SPELL_DAMAGE"; -- Unstable Corruption
+	spells[144788] = "SPELL_DAMAGE"; -- Self Reflection (adds spawning)
 
 	-- Klaxxi
 	spells[143701] = "SPELL_AURA_APPLIED"; -- Whirling
@@ -105,7 +120,6 @@ function FailCount_SetUp()
 	spells[143735] = "SPELL_AURA_APPLIED"; -- Caustic Amber
 	spells[143980] = "SPELL_DAMAGE"; -- Vicious Assault
 	
-	announce[145052] = "SPELL_ENERGIZE"; -- Corrupt (Norushen)
 end;
 
 function FailCount_StartCombat()
