@@ -14,7 +14,7 @@ announce = {};
 currentEncounter = nil;
 
 function printMessage(msg)
-	SendChatMessage(msg, "RAID");
+	SendChatMessage(msg, "SAY");
 end
 
 function FailCount_OnEvent(self, event, ...)
@@ -22,10 +22,10 @@ function FailCount_OnEvent(self, event, ...)
 		FailCount_StartCombat();
 	elseif event == "ENCOUNTER_END" then
 		FailCount_EndCombat();
+	elseif event=="PLAYER_ENTERING_WORLD" then
+		FailCount_SetUp();
 	elseif currentEncounter ~= nil then
 		FailCount_CombatEvent(Event, ...);
-	else
-		FailCount_SetUp();
 	end
 end;
 frame:SetScript("OnEvent", FailCount_OnEvent);
@@ -150,13 +150,13 @@ function FailCount_CombatEvent(Event, ...)
 	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags = ...;
 	local eventPrefix, eventSuffix = combatEvent:match("^(.-)_?([^_]*)$");
 	
-	if FailCount_IsAnnounce(spellId) then
+	if eventPrefix:match("^SPELL") then
 		local spellId, spellName, spellSchool = select(12, ...);
-		print(destName .. ": " .. spellName);
-	end
+		
+		if FailCount_IsAnnounce(spellId, combatEvent) then
+			printMessage(destName .. ": " .. spellName);
+		end
 	
-	if currentEncounter ~= nil and eventPrefix:match("^SPELL") then
-		local spellId, spellName, spellSchool = select(12, ...);
 		if FailCount_IsFail(event, combatEvent, spellId) then
 			print(destName .. ": " .. spellName);
 			if fails[currentEncounter][destName] == nil then
