@@ -1,24 +1,27 @@
 local frame = CreateFrame("FRAME", "FailCountFrame");
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+frame:RegisterEvent("ENCOUNTER_START");
+frame:RegisterEvent("ENCOUNTER_END");
 frame:RegisterEvent("PLAYER_ENTERING_WORLD");
 frame:RegisterEvent("PLAYER_REGEN_DISABLED");
 frame:RegisterEvent("PLAYER_REGEN_ENABLED");
 
 SLASH_FAILCOUNT1 = '/fc';
 
-spells = {}
+spells = {};
 fails = {};
+announce = {};
 currentEncounter = nil;
 
 function printMessage(msg)
-	SendChatMessage(msg, "SAY");
+	SendChatMessage(msg, "RAID");
 end
 
 function FailCount_OnEvent(self, event, ...)
-	if event == "PLAYER_REGEN_DISABLED" then
-		FailCount_StartCombat(event, ...);
-	elseif event == "PLAYER_REGEN_ENABLED" then
-		FailCount_EndCombat(event, ...);
+	if event == "ENCOUNTER_START" then
+		FailCount_StartCombat();
+	elseif event == "ENCOUNTER_END" then
+		FailCount_EndCombat();
 	elseif currentEncounter ~= nil then
 		FailCount_CombatEvent(Event, ...);
 	else
@@ -93,19 +96,25 @@ function printFails(encounter)
 end;
 
 function FailCount_SetUp()
+	-- Immersius
+	
+
+	-- Klaxxi
 	spells[143701] = "SPELL_AURA_APPLIED"; -- Whirling
 	spells[143240] = "SPELL_PERIODIC_DAMAGE"; -- Rapid Fire
 	spells[143735] = "SPELL_AURA_APPLIED"; -- Caustic Amber
 	spells[143980] = "SPELL_DAMAGE"; -- Vicious Assault
+	
+	announce[145052] = "SPELL_ENERGIZE"; -- Corrupt (Norushen)
 end;
 
-function FailCount_StartCombat(event, ...)
+function FailCount_StartCombat()
 	print("Starting combat at " .. date("%H:%M:%S"));
 	currentEncounter = date("%H:%M:%S");
 	fails[currentEncounter] = {};
 end;
 
-function FailCount_EndCombat(event, ...)
+function FailCount_EndCombat()
 	print("Ending combat at " .. date("%H:%M:%S"));
 	local enc = currentEncounter;
 	currentEncounter = nil;
@@ -127,8 +136,13 @@ function FailCount_CombatEvent(Event, ...)
 	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags = ...;
 	local eventPrefix, eventSuffix = combatEvent:match("^(.-)_?([^_]*)$");
 	
+	if FailCount_IsAnnounce(spellId) then
+		local spellId, spellName, spellSchool = select(12, ...);
+		print(destName .. ": " .. spellName);
+	end
+	
 	if currentEncounter ~= nil and eventPrefix:match("^SPELL") then
-		local spellId, spellName, spellSchool = select(12, ...);	
+		local spellId, spellName, spellSchool = select(12, ...);
 		if FailCount_IsFail(event, combatEvent, spellId) then
 			print(destName .. ": " .. spellName);
 			if fails[currentEncounter][destName] == nil then
@@ -146,6 +160,13 @@ end;
 
 function FailCount_IsFail(event, combatEvent, spellId)
 	if spells[spellId] == combatEvent then
+		return true;
+	end
+	return false;
+end
+
+function FailCount_IsAnnounce(spellId, combatEvent)
+	if announce[spellId] == combatEvent then
 		return true;
 	end
 	return false;
