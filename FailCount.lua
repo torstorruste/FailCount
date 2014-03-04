@@ -14,7 +14,7 @@ announce = {};
 currentEncounter = nil;
 
 function printMessage(msg)
-	SendChatMessage(msg, "SAY");
+	SendChatMessage(msg, "RAID");
 end
 
 function FailCount_OnEvent(self, event, ...)
@@ -101,9 +101,9 @@ function FailCount_SetUp()
 	spells[143436] = "SPELL_DAMAGE"; -- Corrosive Blast
 	
 	-- Protectors
-	spells[143023] = "SPELL_DAMAGE"; -- Corrupted Brew
+	spells[143023] = "SPELL_AURA_APPLIED"; -- Corrupted Brew
 	spells[144397] = "SPELL_DAMAGE"; -- Vengeful Strikes
-	spells[143009] = "SPELL_AURA_APPLIED"; -- Corruption Kick
+	spells[143009] = "SPELL_DAMAGE"; -- Corruption Kick
 	
 	-- Norushen
 	spells[145227] = "SPELL_DAMAGE"; -- Blind Hatred
@@ -113,6 +113,18 @@ function FailCount_SetUp()
 	spells[144911] = "SPELL_DAMAGE"; -- Bursting Pride
 	spells[147198] = "SPELL_DAMAGE"; -- Unstable Corruption
 	spells[144788] = "SPELL_DAMAGE"; -- Self Reflection (adds spawning)
+	
+	-- Juggernaut
+	spells[144218] = "SPELL_PERIODIC_DAMAGE"; -- Borer drill
+	spells[144327] = "SPELL_DAMAGE"; -- Ricochet
+	
+	-- Shamans
+	spells[144334] = "SPELL_DAMAGE"; -- Iron Tomb
+	spells[144017] = "SPELL_DAMAGE"; -- Toxic Storm
+	spells[143993] = "SPELL_DAMAGE"; -- Foul Geyser
+	
+	-- Nazgrim
+	spells[143712] = "SPELL_DAMAGE"; -- Aftershock
 
 	-- Klaxxi
 	spells[143701] = "SPELL_AURA_APPLIED"; -- Whirling
@@ -148,25 +160,27 @@ end
 
 function FailCount_CombatEvent(Event, ...)
 	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags = ...;
-	local eventPrefix, eventSuffix = combatEvent:match("^(.-)_?([^_]*)$");
-	
-	if eventPrefix:match("^SPELL") then
-		local spellId, spellName, spellSchool = select(12, ...);
+	if combatEvent ~= nil then 
+		local eventPrefix, eventSuffix = combatEvent:match("^(.-)_?([^_]*)$");
 		
-		if FailCount_IsAnnounce(spellId, combatEvent) then
-			printMessage(destName .. ": " .. spellName);
-		end
-	
-		if FailCount_IsFail(event, combatEvent, spellId) then
-			print(destName .. ": " .. spellName);
-			if fails[currentEncounter][destName] == nil then
-				fails[currentEncounter][destName] = {};
-			end;
+		if eventPrefix:match("^SPELL") then
+			local spellId, spellName, spellSchool = select(12, ...);
 			
-			if fails[currentEncounter][destName][spellName] ~= nil then
-				fails[currentEncounter][destName][spellName] = fails[currentEncounter][destName][spellName]+1;
-			else
-				fails[currentEncounter][destName][spellName] = 1;
+			if FailCount_IsAnnounce(spellId, combatEvent) then
+				printMessage(destName .. ": " .. spellName);
+			end
+		
+			if FailCount_IsFail(event, combatEvent, spellId) then
+				print(destName .. ": " .. spellName);
+				if fails[currentEncounter][destName] == nil then
+					fails[currentEncounter][destName] = {};
+				end;
+				
+				if fails[currentEncounter][destName][spellName] ~= nil then
+					fails[currentEncounter][destName][spellName] = fails[currentEncounter][destName][spellName]+1;
+				else
+					fails[currentEncounter][destName][spellName] = 1;
+				end
 			end
 		end
 	end
