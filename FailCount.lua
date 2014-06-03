@@ -125,6 +125,11 @@ function FailCount_SetUp()
 	
 	-- Nazgrim
 	spells[143712] = "SPELL_DAMAGE"; -- Aftershock
+	
+	-- Malkorok
+	spells[142816] = "SPELL_DAMAGE"; -- Breatg
+	spells[143857] = "SPELL_DAMAGE"; -- Essence
+	spells[142849] = "SPELL_DAMAGE"; -- Smash
 
 	-- Klaxxi
 	spells[143701] = "SPELL_AURA_APPLIED"; -- Whirling
