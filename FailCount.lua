@@ -8,9 +8,11 @@ frame:RegisterEvent("PLAYER_REGEN_ENABLED");
 
 SLASH_FAILCOUNT1 = '/fc';
 
+prepots = {};
 spells = {};
 fails = {};
 announce = {};
+pots = {};
 currentEncounter = nil;
 
 function printMessage(msg)
@@ -26,6 +28,8 @@ function FailCount_OnEvent(self, event, ...)
 		FailCount_SetUp();
 	elseif currentEncounter ~= nil then
 		FailCount_CombatEvent(Event, ...);
+	else
+		FailCount_TrackPot(Event, ...);
 	end
 end;
 frame:SetScript("OnEvent", FailCount_OnEvent);
@@ -96,6 +100,10 @@ function printFails(encounter)
 end;
 
 function FailCount_SetUp()
+	pots[156426] = "Draneic Intellect Potion";
+	pots[156423] = "Draenic Agility Potion";
+	pots[156428] = "Draenic Strength Potion";
+
 	-- Immersius
 	spells[143413] = "SPELL_PERIODIC_DAMAGE"; -- Swirl
 	spells[143436] = "SPELL_DAMAGE"; -- Corrosive Blast
@@ -141,6 +149,7 @@ end;
 
 function FailCount_StartCombat()
 	print("Starting combat at " .. date("%H:%M:%S"));
+	FailCount_AnnouncePrepot();
 	currentEncounter = date("%H:%M:%S");
 	fails[currentEncounter] = {};
 end;
@@ -163,7 +172,7 @@ function table.empty(t)
 	return true;
 end
 
-function FailCount_CombatEvent(Event, ...)
+function FailCount_CombatEvent(event, ...)
 	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags = ...;
 	if combatEvent ~= nil then 
 		local eventPrefix, eventSuffix = combatEvent:match("^(.-)_?([^_]*)$");
@@ -190,6 +199,32 @@ function FailCount_CombatEvent(Event, ...)
 		end
 	end
 end;
+
+function FailCount_TrackPot(event, ...)
+	local timestamp, combatEvent, _, _, sourceName = ...;
+	if combatEvent ~= nil then
+		local spellId, spellName, spellSchool = select(12, ...);
+		if pots[spellId] ~= nil and combatEvent=="SPELL_AURA_APPLIED" then
+			print(sourceName .. " used " .. pots[spellId]);
+			prepots[sourceName] = pots[spellId];
+		elseif pots[spellId] ~= nil and combatEvent=="SPELL_AURA_REMOVED" then
+			print(sourceName .. " ran out of pot " .. pots[spellId]);
+			prepots[sourceName] = nil;
+		end
+	end
+end;
+
+function FailCount_AnnouncePrepot()
+	for i=1,40 do
+		name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i);
+		
+		if(name~=nil) then
+			if(prepots[name] == nil) then
+				printMessage(name .. " did not prepot");
+			end
+		end
+	end
+end
 
 function FailCount_IsFail(event, combatEvent, spellId)
 	if spells[spellId] == combatEvent then
