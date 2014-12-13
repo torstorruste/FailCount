@@ -219,7 +219,8 @@ function FailCount_AnnouncePrepot()
 		name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i);
 		
 		if(name~=nil) then
-			if(prepots[name] == nil) then
+			t = UnitGroupRolesAssigned(name);
+			if(prepots[name] == nil and t == "DAMAGER") then
 				printMessage(name .. " did not prepot");
 			end
 		end
